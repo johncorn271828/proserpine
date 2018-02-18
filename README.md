@@ -17,20 +17,22 @@ All this suggests that there might be a way to use more fine-grained weather dat
 
 
 ## Results ##
-After searching through the 26GB or so of measurement data, I found a dozen or so weather stations in the US and Canada with precipitation and min/max temperature data going back to 1890:
+More training data (ie more harvests to learn from) should make the fit more accurate. The USDA has data going back to 1866 [11] but the NOAA data is rather sparse until about 1890 [12]. After searching through the 26GB or so of measurement data, I found a dozen or so weather stations in the US and Canada with precipitation and min/max temperature data going back to 1890:
 
-![Alt text](stations.png?raw=true "Stations")
+![Alt text](images/stations.png?raw=true "Stations")
 
-More training data (ie more harvests to learn from) should make the fit more accurate. The USDA has data going back to 1866 [11] but the NOAA data is rather sparse until about 1890 [12].
+The historical trendline going back that far isn't exactly straight. Nielsen [13] gives a piecewise linear fit to the technological trend, and identifies various famous/infamous harvest seasons on the plot of departures from the trend. His plots are highly suggestive of a method for subtracting the technological term:
 
-The historical trendline going back that far isn't exactly straight. [13] gives a piecewise linear fit to the technological trend, and identifies various famous/infamous harvest seasons on the plot of departures from the trend.
+![Alt text](images/CornYieldTrend_US.gif?raw=true "Source: RL Nielsen")
 
-After adopting the piecewise technological model of [13], I tried various methods for munging all the measurements into informative training data. The first approach I tried was to calculate montly statistics like the authors of [3], and was immediately able to outperform the technological trendline. Next I attempted to flag days at which a plant was subjected to sudden stresses like floods, heat waves, etc, then count the bad days. I also tried averaging the weather data over spans of time smaller than a month, but didn't see an improvement. So far, the best results I've seen are from training on monthly averages of daily maximum and minimum temperatures, monthly maximum and minimum temperatures, precipitation totals, and daily precipitation maxima. More experiments projecting the available data onto training vectors and performing cross validation are needed.
+![Alt text](images/CornYieldDep_US.gif?raw=true "Source: RL Nielsen")
 
-Using Kernel Ridge Regression with a degree 3 polynomial kernel and "leave one out" cross validation, this model correctly predicts the direction of the deviation from the technological trendline in 87 out of 128 years. So, you'd have a hard time winning that many coin flips, but it isn't perfect:
+After adopting a similar piecewise linear technological model, I tried various methods for munging all the measurements into informative training data. The first approach I tried was to calculate monthly statistics like the authors of [3], and was immediately able to outperform the technological trendline. Next I attempted to flag days at which a plant was subjected to sudden or sustained stresses like floods, heat waves, etc, then count the bad days. I also tried averaging the weather data over spans of time smaller than a month, but didn't see an improvement in the predictive power. So far, the best results I've seen are from training on monthly averages of daily maximum and minimum temperatures, monthly maximum and minimum temperatures, precipitation totals, and daily precipitation maxima. More experiments projecting the available data onto training vectors and performing cross validation are needed.
 
-![Alt text](departures.png "Departures")
-![Alt text](yields.png "Yields")
+Using Kernel Ridge Regression with a degree 3 polynomial kernel and "leave one out" cross validation, this model correctly predicts the direction of the deviation from the technological trendline in 87 out of 128 years. You'd have a hard time winning that many coin flips, but it isn't perfect:
+
+![Alt text](images/departures.png "Predicted technological trend departures")
+![Alt text](images/yields.png "Predicted yields")
 
 
 ## Future work ##
