@@ -140,8 +140,7 @@ class GhcndMunger:
         plt.show()
 
     
-    def munge(self, start_month=2, end_month=11, enough_days=15,
-              days_per_sampling_period=7):
+    def munge(self, start_month=2, end_month=11, enough_days=15):
         """Compute monthly averages of TMIN, TMAX and PRCP and return them in a 
         DataFrame."""
         # pandas doesn't have wide_to_long, so generate a big wide schema.
@@ -166,27 +165,30 @@ class GhcndMunger:
             for station_id in self.training_station_ids:
                 measurements = self.get_measurements(station_id)
                 for month in range(start_month, end_month+1):
-                    tmaxs = measurements[ (measurements["MONTH"] == month) &
-                                          (measurements["YEAR"] == year) &
-                                          (measurements["ELEMENT"] == "TMAX") ]
+                    tmaxs = measurements[(measurements["MONTH"] == month) &
+                                         (measurements["YEAR"] == year) &
+                                         (measurements["ELEMENT"] == "TMAX") ]
                     if(len(tmaxs) < enough_days):
+                        print(":( ", end="")
                         bad_months[station_id] += 1
-                        tmaxs = measurements[ (measurements["MONTH"] == month) &
-                                              (measurements["ELEMENT"] == "TMAX") ]
-                    tmins = measurements[ (measurements["MONTH"] == month) &
-                                          (measurements["YEAR"] == year) &
-                                          (measurements["ELEMENT"] == "TMIN") ]
+                        tmaxs = measurements[(measurements["MONTH"] == month) &
+                                             (measurements["ELEMENT"] == "TMAX")]
+                    tmins = measurements[(measurements["MONTH"] == month) &
+                                         (measurements["YEAR"] == year) &
+                                         (measurements["ELEMENT"] == "TMIN") ]
                     if(len(tmins) < enough_days):
+                        print(":( ", end="")
                         bad_months[station_id] += 1
-                        tmins = measurements[ (measurements["MONTH"] == month) &
-                                              (measurements["ELEMENT"] == "TMIN") ]
-                    prcps = measurements[ (measurements["MONTH"] == month) &
-                                          (measurements["YEAR"] == year) &
-                                          (measurements["ELEMENT"] == "PRCP") ]
+                        tmins = measurements[(measurements["MONTH"] == month) &
+                                             (measurements["ELEMENT"] == "TMIN")]
+                    prcps = measurements[(measurements["MONTH"] == month) &
+                                         (measurements["YEAR"] == year) &
+                                         (measurements["ELEMENT"] == "PRCP")]
                     if(len(prcps) < enough_days):
+                        print(":( ", end="")
                         bad_months[station_id] += 1
-                        prcps = measurements[ (measurements["MONTH"] == month) &
-                                              (measurements["ELEMENT"] == "PRCP") ]
+                        prcps = measurements[(measurements["MONTH"] == month) &
+                                             (measurements["ELEMENT"] == "PRCP")]
                     season += [tmaxs["VALUE"].mean(),
                                tmaxs["VALUE"].min(),
                                tmaxs["VALUE"].max(),
