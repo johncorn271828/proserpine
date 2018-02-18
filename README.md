@@ -5,7 +5,7 @@ An attempt is made to predict crop yields (the bushels of grain produced per acr
 
 
 ## Introduction ##
-This project was inspired by a question my mom asked me about how I thought the Old Farmer's Alamanac could supposedly provide useful predictions about weather and crops months in advance. Setting aside the performance of that particular horoscope, it is natural to speculate whether the upcoming growing season will in some way resemble a particular past season. This is the idea behind the groundhog seeing its shadow and similar traditions, and we know now that there are phenomena like El Nino and La Nina that allow climatic measurements at one time of year to provide a degree of predictive power about the weather later that year. Since the prediction of future weather from current weather has a lot of people working on it, I started thinking about how one might go about predicting crop yields from weather data. People have been interested in this for a long time [1]. If we could combine weather predicting software with yield predicting software, we might be able to at least generate good advice about whether it is appropriate to plant more or less of a crop than usual, even if you can't accurately guess the yield value with all the technological and other noise in the data.
+This project was inspired by a question I was asked about how I thought the Old Farmer's Alamanac could supposedly provide useful predictions about weather and crops months in advance. Setting aside the performance of that particular horoscope, it is natural to speculate whether the upcoming growing season will in some way resemble a particular past season. This is the idea behind the groundhog seeing its shadow and similar traditions, and we know now that there are phenomena like El Niño and La Niña that allow climatic measurements at one time of year to provide a degree of predictive power about the weather later that year. Since the prediction of future weather from current weather has a lot of people working on it, I started thinking about how one might go about predicting crop yields from weather data. People have been interested in this for a long time [1]. If we could combine weather predicting software with yield predicting software, we might be able to at least generate good advice about whether it is appropriate to plant more or less of a crop than usual, even if you can't accurately guess the yield value with all the technological and other noise in the data.
 
 For now, let's focus our discussion on corn; setting aside the corny puns about my surname being Corn, there's a veritable cornucopia of corn literature out there. The second distracting homograph in this context is that the algorithm that seems to work the best is called "kernel ridge regression" where kernel refers to the nullspace of an algebraic operator and not the fruit of the maize plant. But if we can get through the linguistic dualities and just stop punning, there's a kernel of truth to be found.
 
@@ -19,18 +19,18 @@ All this suggests that there might be a way to use more fine-grained weather dat
 ## Results ##
 After searching through the 26GB or so of measurement data, I found a dozen or so weather stations in the US and Canada with precipitation and min/max temperature data going back to 1890:
 
-![Alt text](stations.png?raw=true "Title")
+![Alt text](stations.png?raw=true "Stations")
 
 More training data (ie more harvests to learn from) should make the fit more accurate. The USDA has data going back to 1866 [11] but the NOAA data is rather sparse until about 1890 [12].
 
 The historical trendline going back that far isn't exactly straight. [13] gives a piecewise linear fit to the technological trend, and identifies various famous/infamous harvest seasons on the plot of departures from the trend.
 
-After adopting the piecewise technological model of [13], I tried various methods for munging all the measurements into informative training data. The first approach I tried was to calculate montly statistics like the authors of [3], and was immediately able to outperform the technological trendline. Next I attempted to flag days at which a plant was subjected to sudden stresses like floods, heat waves, etc, then count the bad days. I also tried averaging the weather data over spans of time smaller than a month, but didn't see an improvement. So far, the best results I've seen are from training on monthly averages of daily maximum and minimum temperatures, monthly maximum and minimum temperatures, precipitation totals, and daily precipitation maxima. More experiments projecting the available data onto training vectors and performing cross validation is needed, and I'll keep trying.
+After adopting the piecewise technological model of [13], I tried various methods for munging all the measurements into informative training data. The first approach I tried was to calculate montly statistics like the authors of [3], and was immediately able to outperform the technological trendline. Next I attempted to flag days at which a plant was subjected to sudden stresses like floods, heat waves, etc, then count the bad days. I also tried averaging the weather data over spans of time smaller than a month, but didn't see an improvement. So far, the best results I've seen are from training on monthly averages of daily maximum and minimum temperatures, monthly maximum and minimum temperatures, precipitation totals, and daily precipitation maxima. More experiments projecting the available data onto training vectors and performing cross validation are needed.
 
 Using Kernel Ridge Regression with a degree 3 polynomial kernel and "leave one out" cross validation, this model correctly predicts the direction of the deviation from the technological trendline in 87 out of 128 years. So, you'd have a hard time winning that many coin flips, but it isn't perfect:
 
-![Alt text](departures.png "asdffd")
-![Alt text](yields.ng "asd")
+![Alt text](departures.png "Departures")
+![Alt text](yields.png "Yields")
 
 
 ## Future work ##
