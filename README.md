@@ -1,6 +1,4 @@
-# Proserpine #
-* An algorithm for predicting crop yields *
-
+# Proserpine: An algorithm for predicting crop yields #
 
 ## Abstract ##
 An attempt is made to predict crop yields (the bushels of grain produced per acre of land) from seasonal weather data. Using USDA reports for national average crop yields and NOAA's Global Historical Climate Network database for meteorological measurements, varous machine learning algorithms were applied to predict the maize yield of each year. "Leave one out" model validation is used, in which the performance of a given algorithm for a particular growing season is evaluated by furnishing the algorithm with complete weather and yield data of every other year for training, then comparing its prediction for the given year to the USDA record as if the algorithm were predicting a new year. Kernel ridge regression gives the best results, correctly predicting the direction of departure of maize yields from historical trendlines for 87 out of 128 seasons studied.
@@ -13,15 +11,15 @@ For now, let's focus our discussion on corn; setting aside the corny puns about 
 
 Glancing at yield data [2], it becomes clear that the growth in yields over time will make separating the effect of weather from technology difficult. There was understandable interest after the 2012 growing season [3]. That year's maize crop suffered a combination of an accelerated planting season and a long drought, which emphasizes how useful it would be to accurately predict a harvest months from now with today's weather. [3] took an approach of fitting a trend line to recent national yield averages and measuring deviation from the trend to quantify the effect of weather on a harvest. They successfully correlated quantities like average July temperature across 8-state regions to develop a weather correction term to the technological trend line.
 
-Thinking a little further about maize physiology, quantities averaged over a large region and a long span of time might not be particularly informative about the weather events that affect a plant's life. Early season frosts can have a very different impact on a plant depending on a swing of just a few degrees on a particular night [4]. The effects of high temperatures on corn plants depends on the intensity of the heat and the duration, and high nighttime temperatures can also play a large role [5]. [6] quantifies the effect of drought on yield by counting days under moisture stress, which is not necessarily correlated with seasonal rainfall totals. The response to drought is also dependent on the developmental stage at which the plant is subjected to moisture stress [7]. Similarly, one can separately study the effects of early [8] and mid [9] season flooding. The flood damage takes place in a 24-48 hour span of time, an effect that could completely disappear if you only look at the monthly rainfall totals of a dry month with a traumatic flood on the last day.
+Thinking a little further about maize physiology, environmental conditions averaged over a large region and a long span of time might not be particularly informative about the weather events that affect a plant's life. Early season frosts can have a very different impact on a plant depending on a swing of just a few degrees on a particular night [4]. The effects of high temperatures on corn plants depends on the intensity of the heat and the duration, and high nighttime temperatures can also play a large role [5]. [6] quantifies the effect of drought on yield by counting days under moisture stress, which is not necessarily correlated with seasonal rainfall totals. The response to drought is also dependent on the developmental stage at which the plant is subjected to moisture stress [7]. Similarly, one can separately study the effects of early [8] and mid [9] season flooding. The flood damage takes place in a 24-48 hour span of time, an effect that could completely disappear if you only look at the monthly rainfall totals of a dry month with a traumatic flood on the last day.
 
-All this suggests that there might be a way to use more fine-grained weather data to predict yields. The National Oceanic Atmospheric Administration has a large database of weather measurements called the Global Historical Climate Network [10]. I'd like to try various machine learning algorithms on that data to calculate a correction and outperform the technological trend line.
+All this suggests that there might be a way to use more fine-grained weather data to predict yields. The National Oceanic Atmospheric Administration has a large database of weather measurements called the Global Historical Climate Network [10]. The objective of this project to try various machine learning algorithms on that data to calculate a climatic correction term and outperform the technological trend line.
 
 
 ## Results ##
 After searching through the 26GB or so of measurement data, I found a dozen or so weather stations in the US and Canada with precipitation and min/max temperature data going back to 1890:
 
-![Alt text](stations.pdf "")
+![Alt text](stations.png?raw=true "Title")
 
 More training data (ie more harvests to learn from) should make the fit more accurate. The USDA has data going back to 1866 [11] but the NOAA data is rather sparse until about 1890 [12].
 
@@ -31,8 +29,8 @@ After adopting the piecewise technological model of [13], I tried various method
 
 Using Kernel Ridge Regression with a degree 3 polynomial kernel and "leave one out" cross validation, this model correctly predicts the direction of the deviation from the technological trendline in 87 out of 128 years. So, you'd have a hard time winning that many coin flips, but it isn't perfect:
 
-![Alt text](departure_from_trend.pdf "")
-![Alt text](yield.pdf "")
+![Alt text](departures.png "asdffd")
+![Alt text](yields.ng "asd")
 
 
 ## Future work ##
@@ -47,17 +45,17 @@ Comments and PRs welcome!
 
 
 ## References ##
-[1] http://www.isws.illinois.edu/pubdoc/cr/iswscr-51.pdf
-[2] http://usda.mannlib.cornell.edu/usda/current/htrcp/htrcp-04-13-2017.txt
-[3] http://usda.mannlib.cornell.edu/usda/ers/FDS/2010s/2013/FDS-07-26-2013.pdf
-[4] https://www.agry.purdue.edu/ext/corn/news/articles.02/frost_freeze-0520.html
-[5] http://www.cornandsoybeandigest.com/corn/high-temperature-effects-corn-soybeans
-[6] http://agrigold.com/Universal/Articles/The-Effects-on-Drought-on-Corn-Yield/
-[7] https://dirp3.pids.gov.ph/ACIAR/relatedresources/Impact%20of%20drought%20on%20corn%20productivity.pdf
-[8] http://corn.agronomy.wisc.edu/Management/L038.aspx
-[9] https://crops.extension.iastate.edu/cropnews/2010/08/mid-season-flooding-impact-corn-ear-fill
-[10] https://www.ncdc.noaa.gov/data-access/land-based-station-data/land-based-datasets/global-historical-climatology-network-ghcn
-[11] https://quickstats.nass.usda.gov/
-[12] https://www.ncdc.noaa.gov/ghcn-daily-description
-[13] https://www.agry.purdue.edu/ext/corn/news/timeless/yieldtrends.html
-[14] https://conda.io/docs/user-guide/install/download.html
+1. http://www.isws.illinois.edu/pubdoc/cr/iswscr-51.pdf
+2. http://usda.mannlib.cornell.edu/usda/current/htrcp/htrcp-04-13-2017.txt
+3. http://usda.mannlib.cornell.edu/usda/ers/FDS/2010s/2013/FDS-07-26-2013.pdf
+4. https://www.agry.purdue.edu/ext/corn/news/articles.02/frost_freeze-0520.html
+5. http://www.cornandsoybeandigest.com/corn/high-temperature-effects-corn-soybeans
+6. http://agrigold.com/Universal/Articles/The-Effects-on-Drought-on-Corn-Yield/
+7. https://dirp3.pids.gov.ph/ACIAR/relatedresources/Impact%20of%20drought%20on%20corn%20productivity.pdf
+8. http://corn.agronomy.wisc.edu/Management/L038.aspx
+9. https://crops.extension.iastate.edu/cropnews/2010/08/mid-season-flooding-impact-corn-ear-fill
+10. https://www.ncdc.noaa.gov/data-access/land-based-station-data/land-based-datasets/global-historical-climatology-network-ghcn
+11. https://quickstats.nass.usda.gov/
+12. https://www.ncdc.noaa.gov/ghcn-daily-description
+13. https://www.agry.purdue.edu/ext/corn/news/timeless/yieldtrends.html
+14. https://conda.io/docs/user-guide/install/download.html
