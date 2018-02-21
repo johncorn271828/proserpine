@@ -16,7 +16,7 @@ Thinking a little further about maize physiology, environmental conditions avera
 All this suggests that there might be a way to use more fine-grained weather data to predict yields. The National Oceanic Atmospheric Administration has a large database of weather measurements called the Global Historical Climate Network [10]. The objective of this project to try various machine learning algorithms on that data to calculate a climatic correction term and outperform the technological trend line.
 
 
-## Results ##
+## Preliminary results ##
 More training data (ie more harvests to learn from) should make the fit more accurate. The USDA has data going back to 1866 [11] but the NOAA data is rather sparse until about 1890 [12]. Within the 26GB of weather data, a dozen or so weather stations in the US and Canada have precipitation and min/max temperature data going back to 1890:
 
 ![Alt text](images/stations.png?raw=true "Stations")

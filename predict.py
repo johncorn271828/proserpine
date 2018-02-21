@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 import scipy
 from sklearn import preprocessing
+from sklearn import decomposition
 from sklearn.kernel_ridge import KernelRidge
 import matplotlib.pyplot as plt
 
@@ -17,7 +18,8 @@ class USAMaizeYieldPredictor:
             fitter=KernelRidge(kernel="poly", degree=3, alpha=0.5),
             yield_csv_name="FF72F614-2177-381F-A4EB-D059F706EC14.csv",
             advent_1=1937, # Technological model slope changes in these years
-            advent_2=1962):
+            advent_2=1962,
+            use_indemnities=False):
         """Use RL Nielsen's technological model of maize yields to compute
         seasonal deviations from expectations. Load NOAA climatic data and be
         ready to predict."""
@@ -30,6 +32,14 @@ class USAMaizeYieldPredictor:
         self.yields = self.yields.loc[:,['Year', 'Value']]
         self.yields = self.yields.set_index(self.yields['Year'])
         self.yields = self.yields.sort_index()
+        if use_indemnities:
+            indemnities = pd.read_csv(os.path.join(ROOT_DIR, "indemnities.csv"))
+            indemnities = indemnities.set_index("Year")
+            self.yields = self.yields.join(indemnities)
+            self.yields["Value"] = (
+                self.yields["Value"] + self.yields["bushels_lost_per_acre"])
+            self.yields = self.yields.loc[:,['Year', 'Value']]
+            self.yields = self.yields[self.yields["Year"] >= START_YEAR]
         # Perform piecewise linear fit and compute departure from trend %
         era = self.yields[self.yields["Year"] < advent_1]
         (early_slope, early_intercept,
@@ -66,6 +76,12 @@ class USAMaizeYieldPredictor:
         y = self.yields["departure_from_trend"].as_matrix()
         scaler = preprocessing.MinMaxScaler(feature_range=(0, 1))
         X = scaler.fit_transform(X)
+        # principal component analysis doesn't seem to help. Maybe later
+        # pca = decomposition.PCA(
+        #     svd_solver="full",
+        #     n_components=len(y)*5)
+        # pca.fit(X)
+        # X = pca.transform(X)
         prediction_season_vector = X[year - START_YEAR]
         training_X = np.delete(X, year - START_YEAR, axis=0)
         training_y = np.delete(y, year - START_YEAR, axis=0)
@@ -90,13 +106,19 @@ class USAMaizeYieldPredictor:
             self.predictions["technological_trend"] *
             (1.0 + self.predictions["predicted_departure"]))
         self.predictions["technological_trend_error"] = (
-            self.predictions["technological_trend"] - self.predictions["Value"])
+            self.predictions["Value"] - self.predictions["technological_trend"])
         self.predictions["prediction_error"] = (self.predictions["Value"] -
                                            self.predictions["predicted"])
         self.predictions["improvement"] =  (
             abs(self.predictions["technological_trend_error"]) -
             abs(self.predictions["prediction_error"]))
         self.predictions["win"] = self.predictions["improvement"] > 0
+        # The technological model is probably flawed for any year where the
+        # weather suggests a bad crop but the yield beats the technological
+        # trendline. Flag years like this.
+        # Playing around with advent_1 and advent_2 redistributes these years.
+        self.predictions["unexpected_bumper_crop"] = (~self.predictions["win"] &
+            (self.predictions["departure_from_trend"] > 0))
         self.report()
 
     def report(self):
@@ -122,7 +144,10 @@ class USAMaizeYieldPredictor:
             plt.axvline(x=x)
         plt.show()
         value_plot.get_figure().savefig("yield.pdf")
-
+        error_plot = self.predictions.plot(
+            y=["prediction_error"],
+            title="prediction error (bushels/acre)"
+        )
 
         
 if __name__ == "__main__":

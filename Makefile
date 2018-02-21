@@ -1,9 +1,11 @@
 .DEFAULT_TARGET := predict
 .PHONY: predict
-predict: weather.csv
+predict: weather.csv indemnities.csv
 	python predict.py
-weather.csv: munge.py common.py
-	python munge.py
+weather.csv: weather.py common.py
+	python weather.py
+indemnities.csv: indemnities.py common.py
+	python indemnities.py
 .PHONY: clean
 clean:
-	-rm -rf weather.csv stations.pdf departure_from_trend.pdf yield.pdf
+	-rm -rf weather.csv stations.pdf departure_from_trend.pdf yield.pdf indemnities.csv
